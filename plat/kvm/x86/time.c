@@ -43,6 +43,7 @@
 #include <uk/plat/irq.h>
 #include <kvm/tscclock.h>
 #include <uk/assert.h>
+#include <uk/sched.h>
 
 /* return ns since time_init() */
 __nsec ukplat_monotonic_clock(void)
@@ -63,6 +64,18 @@ __nsec ukplat_wall_clock(void)
 static int timer_handler(void *arg __unused)
 {
 	/* Yes, we handled the irq. */
+	struct uk_thread *thread, *next;
+	struct uk_sched *sched;
+	struct ukplat_ctx_callbacks plat_ctx_cbs;
+
+	thread = uk_thread_current();
+	if (!thread)
+		return 1;
+
+	// uk_pr_info("%s\n", thread->name);
+
+	uk_sched_yield();
+
 	return 1;
 }
 

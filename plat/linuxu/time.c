@@ -37,6 +37,7 @@
 #include <uk/assert.h>
 #include <linuxu/syscall.h>
 #include <linuxu/time.h>
+#include <uk/sched.h>
 
 static k_timer_t timerid;
 
@@ -79,6 +80,14 @@ static int timer_handler(void *arg __unused)
 	 * timer interrupt has already done its job and we can acknowledge
 	 * receiving it.
 	 */
+	struct uk_thread *thread;
+
+	thread = uk_thread_current();
+
+	uk_pr_info("%s\n", thread->name);
+
+	uk_sched_yield();
+
 	return 1;
 }
 

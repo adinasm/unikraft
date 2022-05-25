@@ -59,8 +59,10 @@ static void schedcoop_schedule(struct uk_sched *s)
 	struct uk_thread *prev, *next, *thread, *tmp;
 	unsigned long flags;
 
-	if (ukplat_lcpu_irqs_disabled())
-		UK_CRASH("Must not call %s with IRQs disabled\n", __func__);
+	if (ukplat_lcpu_irqs_disabled()) {
+		// UK_CRASH("Must not call %s with IRQs disabled\n", __func__);
+		ukplat_lcpu_enable_irq();
+	}
 
 	prev = uk_thread_current();
 	flags = ukplat_lcpu_save_irqf();
