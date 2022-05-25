@@ -150,6 +150,8 @@ static inline void uk_printd_once(const char *fmt __unused, ...)
 #define KLVL_MAX KLVL_ERR /* default level */
 #endif
 
+void set_yield();
+
 #if CONFIG_LIBUKDEBUG_PRINTK
 /* please use the uk_printd(), uk_vprintd() macros because
  * they compile in the function calls only if the configured

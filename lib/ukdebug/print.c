@@ -50,6 +50,7 @@
 /* TODO: Replace CONFIG_LIBUKLOCK with CONFIG_HAVE_SMP */
 #if CONFIG_LIBUKLOCK
 #include <uk/mutex.h>
+#include <uk/sched.h>
 #endif
 
 #if CONFIG_LIBUKDEBUG_ANSI_COLOR
@@ -152,6 +153,21 @@ static void _print_stack(struct _vprint_console *cons)
 }
 #endif
 
+static int can_yield = 0;
+
+void set_yield() {
+	can_yield = 1;
+}
+
+static void print_thread(char *lvl) {
+	struct uk_thread *thread;
+
+	thread = uk_thread_current();
+
+	ukplat_coutk(thread->name, strlen(thread->name));
+	ukplat_coutk(lvl, strlen(lvl));
+}
+
 static void _vprint(struct _vprint_console *cons,
 		    int lvl, const char *libname,
 		    const char *srcname __maybe_unused,
@@ -190,7 +206,15 @@ static void _vprint(struct _vprint_console *cons,
 	}
 
 #if CONFIG_LIBUKLOCK
-	uk_mutex_lock(&_print_lock);
+	if (!uk_mutex_trylock(&_print_lock)) {
+
+		if (can_yield) {
+			print_thread("{BFY} ");
+			uk_sched_yield();
+			print_thread("{AFY} ");
+		}
+		uk_mutex_lock(&_print_lock);
+	}
 #endif
 
 	if (lvl != cons->prevlvl) {
@@ -248,6 +272,14 @@ static void _vprint(struct _vprint_console *cons,
 		} else {
 			llen = len;
 		}
+
+#if CONFIG_LIBUKLOCK
+		if (can_yield) {
+			print_thread("{BSY} ");
+			uk_sched_yield();
+			print_thread("{ASY} ");
+		}
+#endif
 
 		/* Message body */
 		switch (lvl) {
