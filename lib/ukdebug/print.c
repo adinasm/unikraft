@@ -45,6 +45,13 @@
 #include <uk/errptr.h>
 #include <uk/arch/lcpu.h>
 
+#include <unistd.h>
+
+/* TODO: Replace CONFIG_LIBUKLOCK with CONFIG_HAVE_SMP */
+#if CONFIG_LIBUKLOCK
+#include <uk/mutex.h>
+#endif
+
 #if CONFIG_LIBUKDEBUG_ANSI_COLOR
 #define LVLC_RESET	UK_ANSI_MOD_RESET
 #define LVLC_TS		UK_ANSI_MOD_COLORFG(UK_ANSI_COLOR_GREEN)
@@ -94,6 +101,10 @@ struct _vprint_console {
 	int newline;
 	int prevlvl;
 };
+
+#if CONFIG_LIBUKLOCK
+static struct uk_mutex _print_lock = UK_MUTEX_INITIALIZER(_print_lock);
+#endif
 
 /* Console state for kernel output */
 #if CONFIG_LIBUKDEBUG_REDIR_PRINTD || CONFIG_LIBUKDEBUG_PRINTK
@@ -178,6 +189,10 @@ static void _vprint(struct _vprint_console *cons,
 		return;
 	}
 
+#if CONFIG_LIBUKLOCK
+	uk_mutex_lock(&_print_lock);
+#endif
+
 	if (lvl != cons->prevlvl) {
 		/* level changed from previous call */
 		if (cons->prevlvl != INT_MIN && !cons->newline) {
@@ -253,6 +268,10 @@ static void _vprint(struct _vprint_console *cons,
 		len -= llen;
 		lptr = nlptr + 1;
 	}
+
+#if CONFIG_LIBUKLOCK
+	uk_mutex_unlock(&_print_lock);
+#endif
 }
 
 /*
