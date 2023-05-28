@@ -454,12 +454,14 @@ $(foreach _M,$(wildcard $(addsuffix Makefile.rules,\
 properclean:
 	$(call verbose_cmd,RM,build/,$(RM) -r \
 		$(BUILD_DIR))
+	rm -rf $(ISR_PLUGIN_SO)
 
 distclean: properclean
 	$(call verbose_cmd,RM,config,$(RM) \
 		$(UK_CONFIG) $(UK_CONFIG).old \
 		$(CONFIG_DIR)/.$(notdir $(UK_CONFIG)).tmp \
 		$(CONFIG_DIR)/.auto.deps)
+	rm -rf $(ISR_PLUGIN_SO)
 
 .PHONY: distclean properclean
 
@@ -549,6 +551,12 @@ unexport TERMINFO
 unexport MACHINE
 #unexport O
 
+# ISR plugin
+ISR_PLUGIN_PATH = $(CONFIG_UK_BASE)/support/gcc-plugin
+ISR_PLUGIN_SRC = $(ISR_PLUGIN_PATH)/isr-plugin.c
+ISR_PLUGIN_SO = $(ISR_PLUGIN_PATH)/isr-plugin.so
+ISR_PLUGIN_FLAGS = -fpic -fno-rtti
+
 # CONFIG_CROSS_COMPILE specify the prefix used for all executables used
 # during compilation. Only gcc and related bin-utils executables
 # are prefixed with $(CONFIG_CROSS_COMPILE).
@@ -632,7 +640,7 @@ CC_VER_MAJOR   := $(word 1,$(subst ., ,$(CC_VERSION)))
 CC_VER_MINOR   := $(word 2,$(subst ., ,$(CC_VERSION)))
 
 ASFLAGS		+= -DCC_VERSION=$(CC_VERSION)
-CFLAGS		+= -DCC_VERSION=$(CC_VERSION)
+CFLAGS		+= -DCC_VERSION=$(CC_VERSION) -fplugin=$(ISR_PLUGIN_SO)
 CXXFLAGS	+= -DCC_VERSION=$(CC_VERSION)
 GOCFLAGS	+= -DCC_VERSION=$(CC_VERSION)
 
@@ -714,7 +722,7 @@ $(UK_CONFIG_OUT): $(UK_CONFIG)
 		$(UK_CONFIG) \
 		$(UK_CONFIG_OUT))
 
-prepare: $(KCONFIG_AUTOHEADER) $(UK_CONFIG_OUT) $(UK_PREPARE) $(UK_PREPARE-y)
+prepare: $(KCONFIG_AUTOHEADER) $(UK_CONFIG_OUT) $(UK_PREPARE) $(UK_PREPARE-y) $(ISR_PLUGIN_SO)
 prepare: $(UK_FIXDEP) | fetch
 
 preprocess: $(UK_PREPROCESS) $(UK_PREPROCESS-y) | prepare
@@ -724,6 +732,9 @@ objs: $(UK_OBJS) $(UK_OBJS-y)
 libs: $(UK_ALIBS) $(UK_ALIBS-y) $(UK_OLIBS) $(UK_OLIBS-y)
 
 images: $(UK_DEBUG_IMAGES) $(UK_DEBUG_IMAGES-y) $(UK_IMAGES) $(UK_IMAGES-y)
+
+$(ISR_PLUGIN_SO): $(ISR_PLUGIN_SRC)
+	$(HOSTCXX) -g -I`$(HOSTCC) -print-file-name=plugin`/include $(ISR_PLUGIN_SRC) $(ISR_PLUGIN_FLAGS) -shared -o $(ISR_PLUGIN_SO)
 
 GDB_HELPER_LINKS := $(addsuffix .gdb.py,$(UK_DEBUG_IMAGES) $(UK_DEBUG_IMAGES-y))
 $(GDB_HELPER_LINKS):
@@ -756,6 +767,7 @@ clean: clean-libs
 			$(UK_IMAGES) $(UK_IMAGES-y)) \
 		$(GDB_HELPER_LINKS) $(BUILD_DIR)/uk-gdb.py \
 		$(UK_CLEAN) $(UK_CLEAN-y))
+	rm -rf $(ISR_PLUGIN_SO)
 
 else # !($(UK_HAVE_DOT_CONFIG),y)
 
@@ -765,21 +777,21 @@ $(filter %config,$(MAKECMDGOALS)): $(BUILD_DIR)/Makefile
 ## ukconfig
 ukconfig: $(BUILD_DIR)/Makefile menuconfig
 
-all: ukconfig
+all: ukconfig $(ISR_PLUGIN_SO)
 
 .PHONY: prepare image libs objs clean-libs clean ukconfig
 
-fetch: ukconfig
+fetch: ukconfig $(ISR_PLUGIN_SO)
 
-prepare: ukconfig
+prepare: ukconfig $(ISR_PLUGIN_SO)
 
-preprocess: ukconfig
+preprocess: ukconfig $(ISR_PLUGIN_SO)
 
-objs: ukconfig
+objs: ukconfig $(ISR_PLUGIN_SO)
 
-libs: ukconfig
+libs: ukconfig $(ISR_PLUGIN_SO)
 
-images: ukconfig
+images: ukconfig $(ISR_PLUGIN_SO)
 
 clean-libs clean:
 	$(error Do not know which files to clean without having a configuration. Did you mean 'properclean' or 'distclean'?)

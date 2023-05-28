@@ -128,7 +128,7 @@ struct ukarch_pagetable {
 	((__vaddr_t)(((__ssz)(vaddr) << (64 - X86_VADDR_BITS)) >>	\
 		(64 - X86_VADDR_BITS)))
 
-static inline int ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end)
+static inline int __attribute__((isr_safe)) ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end)
 {
 #ifdef CONFIG_LIBUKDEBUG
 	UK_ASSERT(start <= end);
@@ -229,7 +229,7 @@ static inline int ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end)
 
 #ifndef CONFIG_PARAVIRT
 #ifndef __ASSEMBLY__
-static inline int ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl,
+static inline int __attribute__((isr_safe)) ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl,
 				  unsigned int idx, __pte_t *pte)
 {
 	(void)lvl;
@@ -243,7 +243,7 @@ static inline int ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl,
 	return 0;
 }
 
-static inline int ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl,
+static inline int __attribute__((isr_safe)) ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl,
 				   unsigned int idx, __pte_t pte)
 {
 	(void)lvl;
@@ -257,7 +257,7 @@ static inline int ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl,
 	return 0;
 }
 
-static inline __paddr_t ukarch_pt_read_base(void)
+static inline __paddr_t __attribute__((isr_safe)) ukarch_pt_read_base(void)
 {
 	__pte_t cr3;
 
@@ -266,19 +266,19 @@ static inline __paddr_t ukarch_pt_read_base(void)
 	return PT_Lx_PTE_PADDR(cr3, PT_LEVELS);
 }
 
-static inline int ukarch_pt_write_base(__paddr_t pt_paddr)
+static inline int __attribute__((isr_safe)) ukarch_pt_write_base(__paddr_t pt_paddr)
 {
 	__asm__ __volatile__("movq %0, %%cr3" :: "r"(pt_paddr));
 
 	return 0;
 }
 
-static inline void ukarch_tlb_flush_entry(__vaddr_t vaddr)
+static inline void __attribute__((isr_safe)) ukarch_tlb_flush_entry(__vaddr_t vaddr)
 {
 	__asm__ __volatile__("invlpg (%0)" :: "r"(vaddr) : "memory");
 }
 
-static inline void ukarch_tlb_flush(void)
+static inline void __attribute__((isr_safe)) ukarch_tlb_flush(void)
 {
 	/* Overwriting CR3 will flush the TLB for all non-global PTEs */
 	ukarch_pt_write_base(ukarch_pt_read_base());

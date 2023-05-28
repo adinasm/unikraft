@@ -21,14 +21,14 @@
 #endif /* CONFIG_HAVE_PAGING */
 #include <uk/isr/string.h>
 
-static inline __vaddr_t guard_page_vaddr(struct uk_vma *vma)
+static inline __vaddr_t __attribute__((isr_safe)) guard_page_vaddr(struct uk_vma *vma)
 {
 	return (vma->flags & UK_VMA_STACK_GROWS_UP) ?
 			vma->end - PAGE_SIZE : vma->start;
 }
 
 #ifdef CONFIG_LIBUKVMEM_STACK_BASE
-static __vaddr_t vma_op_stack_get_base(struct uk_vas *vas __unused,
+static __vaddr_t __attribute__((isr_safe)) vma_op_stack_get_base(struct uk_vas *vas __unused,
 				       void *data __unused,
 				       unsigned long flags __unused)
 {

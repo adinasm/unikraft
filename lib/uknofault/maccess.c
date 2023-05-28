@@ -18,7 +18,7 @@
 #include <uk/vmem.h>
 typedef unsigned long nf_paging_state_t;
 
-static inline void nf_disable_paging(nf_paging_state_t *state)
+static inline void __attribute__((isr_safe)) nf_disable_paging(nf_paging_state_t *state)
 {
 	struct uk_vas *vas = uk_vas_get_active();
 
@@ -28,7 +28,7 @@ static inline void nf_disable_paging(nf_paging_state_t *state)
 	*state = uk_vas_paging_savef(vas);
 }
 
-static inline void nf_enable_paging(nf_paging_state_t *state)
+static inline void __attribute__((isr_safe)) nf_enable_paging(nf_paging_state_t *state)
 {
 	struct uk_vas *vas = uk_vas_get_active();
 
@@ -44,7 +44,7 @@ typedef int nf_paging_state_t;
 #endif /* !CONFIG_LIBUKVMEM */
 
 /* Must be a library global symbol so that the linker can resolve it */
-int nf_mf_handler(const struct nf_excpttab_entry *e,
+int __attribute__((isr_safe)) nf_mf_handler(const struct nf_excpttab_entry *e,
 		  struct ukarch_trap_ctx *ctx)
 {
 	/* Just continue execution at the fault label */
@@ -53,7 +53,7 @@ int nf_mf_handler(const struct nf_excpttab_entry *e,
 	return UK_EVENT_HANDLED;
 }
 
-static int nf_mem_fault_handler(void *data)
+static int __attribute__((isr_safe)) nf_mem_fault_handler(void *data)
 {
 	struct ukarch_trap_ctx *ctx = (struct ukarch_trap_ctx *)data;
 

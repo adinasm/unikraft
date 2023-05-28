@@ -83,7 +83,7 @@ struct uk_vas {
  * @return
  *   The current paging flag
  */
-static inline unsigned long uk_vas_paging_savef(struct uk_vas *vas)
+static inline unsigned long __attribute__((isr_safe)) uk_vas_paging_savef(struct uk_vas *vas)
 {
 	unsigned long saved_flags = vas->flags;
 
@@ -99,7 +99,7 @@ static inline unsigned long uk_vas_paging_savef(struct uk_vas *vas)
  * @param flag
  *   The paging flag to restore
  */
-static inline void uk_vas_paging_restoref(struct uk_vas *vas,
+static inline void __attribute__((isr_safe)) uk_vas_paging_restoref(struct uk_vas *vas,
 					  unsigned long flag)
 {
 	vas->flags = (vas->flags & ~UK_VAS_FLAG_NO_PAGING) | flag;
@@ -384,7 +384,7 @@ struct uk_vma_ops {
 /**
  * Returns the currently active virtual address space.
  */
-struct uk_vas *uk_vas_get_active(void);
+struct uk_vas __attribute__((isr_safe)) *uk_vas_get_active(void);
 
 /**
  * Switches the currently active virtual address space.
@@ -395,7 +395,7 @@ struct uk_vas *uk_vas_get_active(void);
  * @return
  *   0 on success, a negative errno error otherwise
  */
-int uk_vas_set_active(struct uk_vas *vas);
+int __attribute__((isr_safe)) uk_vas_set_active(struct uk_vas *vas);
 
 /**
  * Initializes a new virtual address space using the provided page table.
@@ -410,7 +410,7 @@ int uk_vas_set_active(struct uk_vas *vas);
  * @return
  *   0 on success, a negative errno error otherwise
  */
-int uk_vas_init(struct uk_vas *vas, struct uk_pagetable *pt,
+int __attribute__((isr_safe)) uk_vas_init(struct uk_vas *vas, struct uk_pagetable *pt,
 		struct uk_alloc *a);
 
 /**
@@ -421,7 +421,7 @@ int uk_vas_init(struct uk_vas *vas, struct uk_pagetable *pt,
  * @param vas
  *   The virtual address space to destroy
  */
-void uk_vas_destroy(struct uk_vas *vas);
+void __attribute__((isr_safe)) uk_vas_destroy(struct uk_vas *vas);
 
 /**
  * Returns the virtual memory area at the given virtual address.
@@ -591,7 +591,7 @@ int uk_vma_map(struct uk_vas *vas, __vaddr_t *vaddr, __sz len,
  *   - ENOENT if strict checking is enabled and at least some part of the
  *            address range is not mapped
  */
-int uk_vma_unmap(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
+int __attribute__((isr_safe)) uk_vma_unmap(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
 		 unsigned long flags);
 
 /**
@@ -618,7 +618,7 @@ int uk_vma_unmap(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
  *   - ENOMEM if there is not enough memory to allocate management data
  *            structures.
  */
-int uk_vma_set_attr(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
+int __attribute__((isr_safe)) uk_vma_set_attr(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
 		    unsigned long attr, unsigned long flags);
 
 /* VMA advices */
@@ -662,7 +662,7 @@ int uk_vma_set_attr(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
  * @return
  *   0 on success, a negative errno error otherwise
  */
-int uk_vma_advise(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
+int __attribute__((isr_safe)) uk_vma_advise(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
 		  unsigned long advice, unsigned long flags);
 
 #ifdef __cplusplus

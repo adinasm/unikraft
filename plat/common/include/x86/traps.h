@@ -91,7 +91,7 @@ DECLARE_ASM_TRAP(simd_error);
 DECLARE_ASM_TRAP(virt_error);
 DECLARE_ASM_TRAP(security_error);
 
-void do_unhandled_trap(int trapnr, char *str, struct __regs *regs,
+void __attribute__((isr_safe)) do_unhandled_trap(int trapnr, char *str, struct __regs *regs,
 		unsigned long error_code);
 
 #define DECLARE_TRAP_EVENT(event)					\

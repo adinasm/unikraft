@@ -62,13 +62,13 @@ static inline void invlpg(unsigned long va)
 }
 
 
-static inline void rdmsr(unsigned int msr, __u32 *lo, __u32 *hi)
+static inline void __attribute__((isr_safe)) rdmsr(unsigned int msr, __u32 *lo, __u32 *hi)
 {
 	asm volatile("rdmsr" : "=a"(*lo), "=d"(*hi)
 			     : "c"(msr));
 }
 
-static inline __u64 rdmsrl(unsigned int msr)
+static inline __u64 __attribute__((isr_safe)) rdmsrl(unsigned int msr)
 {
 	__u32 lo, hi;
 
@@ -76,14 +76,14 @@ static inline __u64 rdmsrl(unsigned int msr)
 	return ((__u64) lo | (__u64) hi << 32);
 }
 
-static inline void wrmsr(unsigned int msr, __u32 lo, __u32 hi)
+static inline void __attribute__((isr_safe)) wrmsr(unsigned int msr, __u32 lo, __u32 hi)
 {
 	asm volatile("wrmsr"
 			     : /* no outputs */
 			     : "c"(msr), "a"(lo), "d"(hi));
 }
 
-static inline void wrmsrl(unsigned int msr, __u64 val)
+static inline void __attribute__((isr_safe)) wrmsrl(unsigned int msr, __u64 val)
 {
 	wrmsr(msr, (__u32) (val & 0xffffffffULL), (__u32) (val >> 32));
 }

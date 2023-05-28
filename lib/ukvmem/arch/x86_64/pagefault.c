@@ -12,7 +12,7 @@
 #include <uk/print.h>
 #include <uk/config.h>
 
-static int vmem_arch_pagefault(void *data)
+static int __attribute__((isr_safe)) vmem_arch_pagefault(void *data)
 {
 	struct ukarch_trap_ctx *ctx = (struct ukarch_trap_ctx *)data;
 	__vaddr_t vaddr = (__vaddr_t)ctx->fault_address;

@@ -28,7 +28,7 @@ static struct uk_vas *vmem_active_vas;
 
 /* Forward declarations */
 static void vmem_vma_unmap(struct uk_vma *vma, __vaddr_t vaddr, __sz len);
-static void vmem_vma_unlink_and_free(struct uk_vma *vma);
+static void __attribute__((isr_safe)) vmem_vma_unlink_and_free(struct uk_vma *vma);
 
 struct uk_vas *uk_vas_get_active(void)
 {
@@ -97,7 +97,7 @@ static void vmem_vma_destroy(struct uk_vma *vma)
 	uk_free(vma->vas->a, vma);
 }
 
-static void vmem_vma_unlink_and_free(struct uk_vma *vma)
+static void __attribute__((isr_safe)) vmem_vma_unlink_and_free(struct uk_vma *vma)
 {
 	UK_ASSERT(vma);
 	UK_ASSERT(!uk_list_empty(&vma->vma_list));
@@ -106,7 +106,7 @@ static void vmem_vma_unlink_and_free(struct uk_vma *vma)
 	vmem_vma_destroy(vma);
 }
 
-static struct uk_vma *vmem_vma_find(struct uk_vas *vas, __vaddr_t vaddr,
+static struct uk_vma __attribute__((isr_safe)) *vmem_vma_find(struct uk_vas *vas, __vaddr_t vaddr,
 				    __sz len)
 {
 	struct uk_vma *vma;
@@ -124,12 +124,12 @@ static struct uk_vma *vmem_vma_find(struct uk_vas *vas, __vaddr_t vaddr,
 	return __NULL;
 }
 
-const struct uk_vma *uk_vma_find(struct uk_vas *vas, __vaddr_t vaddr)
+const struct uk_vma __attribute__((isr_safe)) *uk_vma_find(struct uk_vas *vas, __vaddr_t vaddr)
 {
 	return vmem_vma_find(vas, vaddr, 0);
 }
 
-static int vmem_vma_find_range(struct uk_vas *vas, __vaddr_t *vaddr, __sz *len,
+static int __attribute__((isr_safe)) vmem_vma_find_range(struct uk_vas *vas, __vaddr_t *vaddr, __sz *len,
 			       struct uk_vma **start, struct uk_vma **end,
 			       int strict)
 {
@@ -225,7 +225,7 @@ static int vmem_vma_find_range(struct uk_vas *vas, __vaddr_t *vaddr, __sz *len,
 	return 0;
 }
 
-static void vmem_vma_insert(struct uk_vas *vas, struct uk_vma *vma)
+static void __attribute__((isr_safe)) vmem_vma_insert(struct uk_vas *vas, struct uk_vma *vma)
 {
 	struct uk_list_head *prev;
 	struct uk_vma *cur;
@@ -249,7 +249,7 @@ static void vmem_vma_insert(struct uk_vas *vas, struct uk_vma *vma)
 	uk_list_add_tail(&vma->vma_list, &vas->vma_list);
 }
 
-static inline int vmem_vma_can_merge(struct uk_vma *vma, struct uk_vma *next)
+static inline int __attribute__((isr_safe)) vmem_vma_can_merge(struct uk_vma *vma, struct uk_vma *next)
 {
 	UK_ASSERT(vma);
 	UK_ASSERT(next);
@@ -291,13 +291,13 @@ static int vmem_vma_do_try_merge_with_next(struct uk_vma *vma)
 	return 0;
 }
 
-static struct uk_vma *vmem_vma_try_merge_with_next(struct uk_vma *vma)
+static struct uk_vma __attribute__((isr_safe)) *vmem_vma_try_merge_with_next(struct uk_vma *vma)
 {
 	vmem_vma_do_try_merge_with_next(vma);
 	return vma;
 }
 
-static struct uk_vma *vmem_vma_try_merge_with_prev(struct uk_vma *vma)
+static struct uk_vma __attribute__((isr_safe)) *vmem_vma_try_merge_with_prev(struct uk_vma *vma)
 {
 	struct uk_vma *prev;
 
@@ -308,7 +308,7 @@ static struct uk_vma *vmem_vma_try_merge_with_prev(struct uk_vma *vma)
 	return (vmem_vma_do_try_merge_with_next(prev) == 0) ? prev : vma;
 }
 
-static struct uk_vma *vmem_vma_try_merge(struct uk_vma *vma)
+static struct uk_vma __attribute__((isr_safe)) *vmem_vma_try_merge(struct uk_vma *vma)
 {
 	vmem_vma_try_merge_with_next(vma);
 	return vmem_vma_try_merge_with_prev(vma);
@@ -358,7 +358,7 @@ static int vmem_vma_split(struct uk_vma *vma, __vaddr_t vaddr,
 	return 0;
 }
 
-static inline int vmem_vma_need_split(struct uk_vma *vma, __sz len,
+static inline int __attribute__((isr_safe)) vmem_vma_need_split(struct uk_vma *vma, __sz len,
 				      unsigned long *attr)
 {
 	UK_ASSERT(vma);
@@ -366,7 +366,7 @@ static inline int vmem_vma_need_split(struct uk_vma *vma, __sz len,
 	return (len > 0) && (!attr || (vma->attr != *attr));
 }
 
-static int vmem_vma_split_vmas(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
+static int __attribute__((isr_safe)) vmem_vma_split_vmas(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
 			       unsigned long *attr, struct uk_vma **start,
 			       struct uk_vma **end, int strict)
 {
@@ -467,13 +467,13 @@ static void vmem_vma_unmap(struct uk_vma *vma, __vaddr_t vaddr, __sz len)
 	}
 }
 
-static void vmem_vma_unmap_and_free(struct uk_vma *vma)
+static void __attribute__((isr_safe)) vmem_vma_unmap_and_free(struct uk_vma *vma)
 {
 	vmem_vma_unmap(vma, vma->start, vmem_vma_len(vma));
 	vmem_vma_destroy(vma);
 }
 
-static void vmem_vma_unmap_and_free_vmas(struct uk_vma *start,
+static void __attribute__((isr_safe)) vmem_vma_unmap_and_free_vmas(struct uk_vma *start,
 					 struct uk_vma *end)
 {
 	struct uk_vma *vma = start, *next;
@@ -520,7 +520,7 @@ int uk_vma_unmap(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
 	return 0;
 }
 
-static __vaddr_t vmem_first_fit(struct uk_vas *vas, __vaddr_t base, __sz align,
+static __vaddr_t __attribute__((isr_safe)) vmem_first_fit(struct uk_vas *vas, __vaddr_t base, __sz align,
 				__sz len)
 {
 	__vaddr_t vaddr = base;
@@ -785,7 +785,7 @@ static void vmem_vma_set_attr(struct uk_vma *vma, unsigned long attr)
 	vma->attr = attr;
 }
 
-static void vmem_vma_set_attr_vmas(struct uk_vma *start, struct uk_vma *end,
+static void __attribute__((isr_safe)) vmem_vma_set_attr_vmas(struct uk_vma *start, struct uk_vma *end,
 				   unsigned long attr)
 {
 	struct uk_vma *vma = start;
@@ -837,7 +837,7 @@ int uk_vma_set_attr(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
 	return 0;
 }
 
-static int vmem_mapx_advise(struct uk_pagetable *pt,
+static int __attribute__((isr_safe)) vmem_mapx_advise(struct uk_pagetable *pt,
 			    __vaddr_t vaddr, __vaddr_t pt_vaddr,
 			    unsigned int level, __pte_t *pte, void *user)
 {
@@ -946,7 +946,7 @@ int uk_vma_advise(struct uk_vas *vas, __vaddr_t vaddr, __sz len,
 }
 
 #ifdef CONFIG_HAVE_PAGING
-static inline int vmem_largest_level(__vaddr_t vaddr, __sz len,
+static inline int __attribute__((isr_safe)) vmem_largest_level(__vaddr_t vaddr, __sz len,
 				   unsigned int max_lvl)
 {
 	unsigned int lvl = max_lvl;
@@ -963,7 +963,7 @@ static inline int vmem_largest_level(__vaddr_t vaddr, __sz len,
 	return lvl;
 }
 
-static inline int vmem_access_allowed(unsigned long attr,
+static inline int __attribute__((isr_safe)) vmem_access_allowed(unsigned long attr,
 				      unsigned int faulttype)
 {
 	switch (faulttype & UK_VMA_FAULT_ACCESSTYPE) {

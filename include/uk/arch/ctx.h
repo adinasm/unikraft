@@ -85,8 +85,8 @@ typedef void (*ukarch_ctx_entry2)(long, long) __noreturn;
  * @param ip
  *   Instruction pointer to start execution
  */
-static inline void ukarch_ctx_init_bare(struct ukarch_ctx *ctx,
-					__uptr sp, __uptr ip)
+static inline void __attribute__((isr_safe)) ukarch_ctx_init_bare(
+	struct ukarch_ctx *ctx, __uptr sp, __uptr ip)
 {
 	UK_ASSERT(ctx);
 
@@ -115,7 +115,7 @@ static inline void ukarch_ctx_init_bare(struct ukarch_ctx *ctx,
  * @param ip
  *   Instruction pointer to start execution (required)
  */
-void ukarch_ctx_init(struct ukarch_ctx *ctx,
+void __attribute__((isr_safe)) ukarch_ctx_init(struct ukarch_ctx *ctx,
 		     __uptr sp, int keep_regs,
 		     __uptr ip);
 
@@ -137,7 +137,7 @@ void ukarch_ctx_init(struct ukarch_ctx *ctx,
  * @param entry
  *   Entry function to execute (required)
  */
-void ukarch_ctx_init_entry0(struct ukarch_ctx *ctx,
+void __attribute__((isr_safe)) ukarch_ctx_init_entry0(struct ukarch_ctx *ctx,
 			    __uptr sp, int keep_regs,
 			    ukarch_ctx_entry0 entry);
 
@@ -145,7 +145,7 @@ void ukarch_ctx_init_entry0(struct ukarch_ctx *ctx,
  * Similar to `ukarch_ctx_init_entry0()` but with an entry function accepting
  * one argument.
  */
-void ukarch_ctx_init_entry1(struct ukarch_ctx *ctx,
+void __attribute__((isr_safe)) ukarch_ctx_init_entry1(struct ukarch_ctx *ctx,
 			    __uptr sp, int keep_regs,
 			    ukarch_ctx_entry1 entry, long arg);
 
@@ -153,7 +153,7 @@ void ukarch_ctx_init_entry1(struct ukarch_ctx *ctx,
  * Similar to `ukarch_ctx_init_entry0()` but with an entry function accepting
  * two arguments.
  */
-void ukarch_ctx_init_entry2(struct ukarch_ctx *ctx,
+void __attribute__((isr_safe)) ukarch_ctx_init_entry2(struct ukarch_ctx *ctx,
 			    __uptr sp, int keep_regs,
 			    ukarch_ctx_entry2 entry, long arg0, long arg1);
 
@@ -183,7 +183,8 @@ void ukarch_ctx_init_entry2(struct ukarch_ctx *ctx,
  * @param load
  *   Reference to context that shall be executed
  */
-void ukarch_ctx_switch(struct ukarch_ctx *store, struct ukarch_ctx *load);
+void __attribute__((isr_safe)) ukarch_ctx_switch(struct ukarch_ctx *store,
+	struct ukarch_ctx *load);
 
 /**
  * State of extended context, like additional CPU registers and units
@@ -197,13 +198,13 @@ struct ukarch_ectx;
 /**
  * Size needed to allocate memory to store an extended context state
  */
-__sz ukarch_ectx_size(void);
+__sz __attribute__((isr_safe)) ukarch_ectx_size(void);
 
 /**
  * Alignment requirement for allocated memory to store an
  * extended context state
  */
-__sz ukarch_ectx_align(void);
+__sz __attribute__((isr_safe)) ukarch_ectx_align(void);
 
 /**
  * Perform the minimum necessary to ensure the memory at `state`
@@ -212,7 +213,7 @@ __sz ukarch_ectx_align(void);
  * @param state
  *   Reference to extended context
  */
-void ukarch_ectx_sanitize(struct ukarch_ectx *state);
+void __attribute__((isr_safe)) ukarch_ectx_sanitize(struct ukarch_ectx *state);
 
 /**
  * Initializes an extended context so that it can be loaded
@@ -221,7 +222,7 @@ void ukarch_ectx_sanitize(struct ukarch_ectx *state);
  * @param state
  *   Reference to extended context to initialize
  */
-void ukarch_ectx_init(struct ukarch_ectx *state);
+void __attribute__((isr_safe)) ukarch_ectx_init(struct ukarch_ectx *state);
 
 /**
  * Stores the extended context of the currently executing CPU to `state`.
@@ -230,7 +231,7 @@ void ukarch_ectx_init(struct ukarch_ectx *state);
  * @param state
  *   Reference to extended context to save to
  */
-void ukarch_ectx_store(struct ukarch_ectx *state);
+void __attribute__((isr_safe)) ukarch_ectx_store(struct ukarch_ectx *state);
 
 /**
  * Restores a given extended context on the currently executing CPU.
@@ -238,7 +239,7 @@ void ukarch_ectx_store(struct ukarch_ectx *state);
  * @param state
  *   Reference to extended context to restore
  */
-void ukarch_ectx_load(struct ukarch_ectx *state);
+void __attribute__((isr_safe)) ukarch_ectx_load(struct ukarch_ectx *state);
 
 #endif /* !__ASSEMBLY__ */
 #endif /* __UKARCH_CTX_H__ */

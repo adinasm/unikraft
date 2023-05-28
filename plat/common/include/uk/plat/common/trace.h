@@ -34,7 +34,7 @@
 
 #include <uk/arch/lcpu.h>
 
-void dump_regs(struct __regs *regs);
+void __attribute__((isr_safe)) dump_regs(struct __regs *regs);
 void dump_mem(unsigned long addr);
 #if !__OMIT_FRAMEPOINTER__
 void stack_walk(void);

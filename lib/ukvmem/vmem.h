@@ -28,7 +28,7 @@
  * @return
  *   0 on success, a negative error code otherwise
  */
-int vmem_pagefault(__vaddr_t vaddr, unsigned int type, struct __regs *regs);
+int __attribute__((isr_safe)) vmem_pagefault(__vaddr_t vaddr, unsigned int type, struct __regs *regs);
 
 /**
  * Computes the number of pages depending on the VMA's configured page size.
@@ -76,7 +76,7 @@ vmem_len_to_pages(struct uk_vma *vma, __sz len, unsigned long *flags)
 /**
  * Returns the length of a VMA in bytes.
  */
-static inline __sz vmem_vma_len(struct uk_vma *vma)
+static inline __sz __attribute__((isr_safe)) vmem_vma_len(struct uk_vma *vma)
 {
 	UK_ASSERT(vma->end > vma->start);
 
@@ -84,11 +84,11 @@ static inline __sz vmem_vma_len(struct uk_vma *vma)
 }
 
 /* Default VMA op handlers */
-int vma_op_deny();
+int __attribute__((isr_safe)) vma_op_deny();
 
-int vma_op_unmap(struct uk_vma *vma, __vaddr_t vaddr, __sz len);
-int vma_op_set_attr(struct uk_vma *vma, unsigned long attr);
-int vma_op_advise(struct uk_vma *vma, __vaddr_t vaddr, __sz len,
+int __attribute__((isr_safe)) vma_op_unmap(struct uk_vma *vma, __vaddr_t vaddr, __sz len);
+int __attribute__((isr_safe)) vma_op_set_attr(struct uk_vma *vma, unsigned long attr);
+int __attribute__((isr_safe)) vma_op_advise(struct uk_vma *vma, __vaddr_t vaddr, __sz len,
 		  unsigned long advice);
 
 #endif /* __VMEM_H__ */

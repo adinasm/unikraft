@@ -50,14 +50,14 @@ extern "C" {
  *
  * @return 0 on success, a non-zero error value otherwise
  */
-int uk_fallocbuddy_init(struct uk_falloc *fa);
+int __attribute__((isr_safe)) uk_fallocbuddy_init(struct uk_falloc *fa);
 
 /**
  * Returns the size of a buddy frame allocator
  *
  * @return size of allocator in bytes
  */
-__sz uk_fallocbuddy_size(void);
+__sz __attribute__((isr_safe)) uk_fallocbuddy_size(void);
 
 /**
  * Returns the size in bytes required for the metadata when adding a range of
@@ -67,7 +67,7 @@ __sz uk_fallocbuddy_size(void);
  *
  * @return size of metadata in bytes
  */
-__sz uk_fallocbuddy_metadata_size(unsigned long frames);
+__sz __attribute__((isr_safe)) uk_fallocbuddy_metadata_size(unsigned long frames);
 
 #ifdef __cplusplus
 }

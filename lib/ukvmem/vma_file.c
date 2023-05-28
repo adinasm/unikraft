@@ -23,7 +23,7 @@
 #include <uk/isr/string.h>
 
 #ifdef CONFIG_LIBUKVMEM_FILE_BASE
-static __vaddr_t vma_op_file_get_base(struct uk_vas *vas __unused,
+static __vaddr_t __attribute__((isr_safe)) vma_op_file_get_base(struct uk_vas *vas __unused,
 				      void *data __unused,
 				      unsigned long flags __unused)
 {
@@ -31,7 +31,7 @@ static __vaddr_t vma_op_file_get_base(struct uk_vas *vas __unused,
 }
 #endif /* CONFIG_LIBUKVMEM_FILE_BASE */
 
-int vma_op_file_new(struct uk_vas *vas, __vaddr_t vaddr __unused,
+int __attribute__((isr_safe)) vma_op_file_new(struct uk_vas *vas, __vaddr_t vaddr __unused,
 		    __sz len __unused, void *data, unsigned long attr,
 		    unsigned long *flags, struct uk_vma **vma)
 {
@@ -83,7 +83,7 @@ int vma_op_file_new(struct uk_vas *vas, __vaddr_t vaddr __unused,
 	return 0;
 }
 
-static void vma_op_file_destroy(struct uk_vma *vma)
+static void __attribute__((isr_safe)) vma_op_file_destroy(struct uk_vma *vma)
 {
 	struct uk_vma_file *vma_file = (struct uk_vma_file *)vma;
 
@@ -168,7 +168,7 @@ static int vma_op_file_fault(struct uk_vma *vma, struct uk_vm_fault *fault)
 	return 0;
 }
 
-static int vma_op_file_split(struct uk_vma *vma, __vaddr_t vaddr,
+static int __attribute__((isr_safe)) vma_op_file_split(struct uk_vma *vma, __vaddr_t vaddr,
 			     struct uk_vma **new_vma)
 {
 	struct uk_vma_file *vma_file = (struct uk_vma_file *)vma;
@@ -194,7 +194,7 @@ static int vma_op_file_split(struct uk_vma *vma, __vaddr_t vaddr,
 	return 0;
 }
 
-static int vma_op_file_merge(struct uk_vma *vma, struct uk_vma *next)
+static int __attribute__((isr_safe)) vma_op_file_merge(struct uk_vma *vma, struct uk_vma *next)
 {
 	struct uk_vma_file *vma_file = (struct uk_vma_file *)vma;
 	struct uk_vma_file *next_file = (struct uk_vma_file *)next;
@@ -217,7 +217,7 @@ static int vma_op_file_merge(struct uk_vma *vma, struct uk_vma *next)
 	return 0;
 }
 
-static int vma_op_file_set_attr(struct uk_vma *vma, unsigned long attr)
+static int __attribute__((isr_safe)) vma_op_file_set_attr(struct uk_vma *vma, unsigned long attr)
 {
 	/* Writable shared mappings are not supported. */
 	if ((vma->flags & UK_VMA_FILE_SHARED) && (attr & PAGE_ATTR_PROT_WRITE))

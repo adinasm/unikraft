@@ -20,7 +20,7 @@
 #endif /* CONFIG_HAVE_PAGING */
 
 #ifdef CONFIG_LIBUKVMEM_DMA_BASE
-static __vaddr_t vma_op_dma_get_base(struct uk_vas *vas __unused,
+static __vaddr_t __attribute__((isr_safe)) vma_op_dma_get_base(struct uk_vas *vas __unused,
 				     void *data __unused,
 				     unsigned long flags __unused)
 {
@@ -28,7 +28,7 @@ static __vaddr_t vma_op_dma_get_base(struct uk_vas *vas __unused,
 }
 #endif /* CONFIG_LIBUKVMEM_DMA_BASE */
 
-int vma_op_dma_new(struct uk_vas *vas, __vaddr_t vaddr __unused,
+int __attribute__((isr_safe)) vma_op_dma_new(struct uk_vas *vas, __vaddr_t vaddr __unused,
 		   __sz len __unused, void *data, unsigned long attr __unused,
 		   unsigned long *flags __unused, struct uk_vma **vma)
 {
@@ -53,7 +53,7 @@ int vma_op_dma_new(struct uk_vas *vas, __vaddr_t vaddr __unused,
 
 	return 0;
 }
-static int vma_op_dma_fault(struct uk_vma *vma, struct uk_vm_fault *fault)
+static int __attribute__((isr_safe)) vma_op_dma_fault(struct uk_vma *vma, struct uk_vm_fault *fault)
 {
 	struct uk_vma_dma *vma_dma = (struct uk_vma_dma *)vma;
 
@@ -66,7 +66,7 @@ static int vma_op_dma_fault(struct uk_vma *vma, struct uk_vm_fault *fault)
 	return 0;
 }
 
-static int vma_op_dma_unmap(struct uk_vma *vma, __vaddr_t vaddr, __sz len)
+static int __attribute__((isr_safe)) vma_op_dma_unmap(struct uk_vma *vma, __vaddr_t vaddr, __sz len)
 {
 	UK_ASSERT(vaddr >= vma->start);
 	UK_ASSERT(vaddr + len <= vma->end);
@@ -75,7 +75,7 @@ static int vma_op_dma_unmap(struct uk_vma *vma, __vaddr_t vaddr, __sz len)
 				 PAGE_FLAG_KEEP_FRAMES);
 }
 
-static int vma_op_dma_split(struct uk_vma *vma, __vaddr_t vaddr,
+static int __attribute__((isr_safe)) vma_op_dma_split(struct uk_vma *vma, __vaddr_t vaddr,
 			    struct uk_vma **new_vma)
 {
 	struct uk_vma_dma *vma_dma = (struct uk_vma_dma *)vma;
@@ -98,7 +98,7 @@ static int vma_op_dma_split(struct uk_vma *vma, __vaddr_t vaddr,
 	return 0;
 }
 
-static int vma_op_dma_merge(struct uk_vma *vma, struct uk_vma *next)
+static int __attribute__((isr_safe)) vma_op_dma_merge(struct uk_vma *vma, struct uk_vma *next)
 {
 	struct uk_vma_dma *vma_dma = (struct uk_vma_dma *)vma;
 	struct uk_vma_dma *next_dma = (struct uk_vma_dma *)next;

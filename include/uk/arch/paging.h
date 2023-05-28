@@ -374,7 +374,7 @@ int PAGE_Lx_IS(__pte_t pte, unsigned int lvl);
  *
  * @return a non-zero value if the addresses in the range are supported
  */
-int ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end);
+int __attribute__((isr_safe)) ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end);
 
 #define ukarch_vaddr_isvalid(vaddr)				\
 	ukarch_vaddr_range_isvalid(vaddr, vaddr)
@@ -390,7 +390,7 @@ int ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end);
  *
  * @return a non-zero value if the addresses in the range are supported
  */
-int ukarch_paddr_range_isvalid(__paddr_t start, __paddr_t end);
+int __attribute__((isr_safe)) ukarch_paddr_range_isvalid(__paddr_t start, __paddr_t end);
 
 #define ukarch_paddr_isvalid(paddr)				\
 	ukarch_paddr_range_isvalid(paddr, paddr)
@@ -407,7 +407,7 @@ int ukarch_paddr_range_isvalid(__paddr_t start, __paddr_t end);
  * @return 0 if the page table entry could be read, an non-zero error value
  *    otherwise
  */
-int ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl, unsigned int idx,
+int __attribute__((isr_safe)) ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl, unsigned int idx,
 		    __pte_t *pte);
 
 /**
@@ -423,7 +423,7 @@ int ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl, unsigned int idx,
  * @return 0 if the page table entry could be written, an non-zero error value
  *    otherwise
  */
-int ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl, unsigned int idx,
+int __attribute__((isr_safe)) ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl, unsigned int idx,
 		     __pte_t pte);
 
 /**
@@ -433,7 +433,7 @@ int ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl, unsigned int idx,
  *    PT_LEVELS - 1) that is configured in hardware for use in address
  *    translation. May return __PADDR_INV on error
  */
-__paddr_t ukarch_pt_read_base(void);
+__paddr_t __attribute__((isr_safe)) ukarch_pt_read_base(void);
 
 /**
  * Sets the currently active page table. This will also flush the TLB.
@@ -445,19 +445,19 @@ __paddr_t ukarch_pt_read_base(void);
  * @return 0 if the page table could be activated, a non-zero error value
  *    otherwise
  */
-int ukarch_pt_write_base(__paddr_t pt_paddr);
+int __attribute__((isr_safe)) ukarch_pt_write_base(__paddr_t pt_paddr);
 
 /**
  * Flushes a single entry from the TLB
  *
  * @param vaddr the virtual address of the entry to flush
  */
-void ukarch_tlb_flush_entry(__vaddr_t vaddr);
+void __attribute__((isr_safe)) ukarch_tlb_flush_entry(__vaddr_t vaddr);
 
 /**
  * Flushes the entire TLB
  */
-void ukarch_tlb_flush(void);
+void __attribute__((isr_safe)) ukarch_tlb_flush(void);
 #endif /* !__ASSEMBLY__ */
 
 #ifdef __cplusplus

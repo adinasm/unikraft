@@ -91,7 +91,7 @@ struct uk_pagetable {
  * Returns the active page table (the one that defines the virtual address
  * space at the moment of the execution of this function).
  */
-struct uk_pagetable *ukplat_pt_get_active(void);
+struct uk_pagetable __attribute__((isr_safe)) *ukplat_pt_get_active(void);
 
 /**
  * Switches the active page table to the specified one.
@@ -103,7 +103,7 @@ struct uk_pagetable *ukplat_pt_get_active(void);
  * @return
  *   0 on success, a non-zero value otherwise
  */
-int ukplat_pt_set_active(struct uk_pagetable *pt);
+int __attribute__((isr_safe)) ukplat_pt_set_active(struct uk_pagetable *pt);
 
 /**
  * Initializes a new page table from the currently configured page table
@@ -124,7 +124,7 @@ int ukplat_pt_set_active(struct uk_pagetable *pt);
  * @return
  *   0 on success, a non-zero value otherwise
  */
-int ukplat_pt_init(struct uk_pagetable *pt, __paddr_t start, __sz len);
+int __attribute__((isr_safe)) ukplat_pt_init(struct uk_pagetable *pt, __paddr_t start, __sz len);
 
 /**
  * Adds a physical memory range to the frame allocator of the given page table.
@@ -142,7 +142,7 @@ int ukplat_pt_init(struct uk_pagetable *pt, __paddr_t start, __sz len);
  * @return
  *   0 on success, a non-zero value otherwise
  */
-int ukplat_pt_add_mem(struct uk_pagetable *pt, __paddr_t start, __sz len);
+int __attribute__((isr_safe)) ukplat_pt_add_mem(struct uk_pagetable *pt, __paddr_t start, __sz len);
 
 /**
  * Initializes a new page table as clone of another page table. The new page
@@ -164,7 +164,7 @@ int ukplat_pt_add_mem(struct uk_pagetable *pt, __paddr_t start, __sz len);
  * @return
  *   0 on success, a non-zero value otherwise
  */
-int ukplat_pt_clone(struct uk_pagetable *pt, struct uk_pagetable *pt_src,
+int __attribute__((isr_safe)) ukplat_pt_clone(struct uk_pagetable *pt, struct uk_pagetable *pt_src,
 		    unsigned long flags);
 
 /**
@@ -184,7 +184,7 @@ int ukplat_pt_clone(struct uk_pagetable *pt, struct uk_pagetable *pt_src,
  * @return
  *   0 on success, a non-zero value otherwise
  */
-int ukplat_pt_free(struct uk_pagetable *pt, unsigned long flags);
+int __attribute__((isr_safe)) ukplat_pt_free(struct uk_pagetable *pt, unsigned long flags);
 
 /**
  * Performs a page table walk
@@ -209,7 +209,7 @@ int ukplat_pt_free(struct uk_pagetable *pt, unsigned long flags);
  * @return
  *   0 on success, a non-zero value otherwise.
  */
-int ukplat_pt_walk(struct uk_pagetable *pt, __vaddr_t vaddr,
+int __attribute__((isr_safe)) ukplat_pt_walk(struct uk_pagetable *pt, __vaddr_t vaddr,
 		   unsigned int *level, __vaddr_t *pt_vaddr, __pte_t *pte);
 
 /* Forward declaration */
@@ -321,7 +321,7 @@ struct ukplat_page_mapx {
  *   - the platform rejected the operation
  *   - the mapx page mapper returned a fatal error
  */
-int ukplat_page_mapx(struct uk_pagetable *pt, __vaddr_t vaddr,
+int __attribute__((isr_safe)) ukplat_page_mapx(struct uk_pagetable *pt, __vaddr_t vaddr,
 		     __paddr_t paddr, unsigned long pages,
 		     unsigned long attr, unsigned long flags,
 		     struct ukplat_page_mapx *mapx);
@@ -364,7 +364,7 @@ int ukplat_page_mapx(struct uk_pagetable *pt, __vaddr_t vaddr,
  *   belongs to this page table's frame allocator (i.e., no reference counting).
  *   In this case, use PAGE_FLAG_KEEP_FRAMES for all mappings but the last one.
  */
-int ukplat_page_unmap(struct uk_pagetable *pt, __vaddr_t vaddr,
+int __attribute__((isr_safe)) ukplat_page_unmap(struct uk_pagetable *pt, __vaddr_t vaddr,
 		      unsigned long pages, unsigned long flags);
 
 /**
@@ -391,7 +391,7 @@ int ukplat_page_unmap(struct uk_pagetable *pt, __vaddr_t vaddr,
  *   - the virtual address is not aligned to the page size
  *   - the platform rejected the operation
  */
-int ukplat_page_set_attr(struct uk_pagetable *pt, __vaddr_t vaddr,
+int __attribute__((isr_safe)) ukplat_page_set_attr(struct uk_pagetable *pt, __vaddr_t vaddr,
 			 unsigned long pages, unsigned long new_attr,
 			 unsigned long flags);
 
@@ -424,7 +424,7 @@ int ukplat_page_set_attr(struct uk_pagetable *pt, __vaddr_t vaddr,
  *   The virtual address of the temporary mapping on success, __VADDR_INV
  *   otherwise
  */
-__vaddr_t ukplat_page_kmap(struct uk_pagetable *pt, __paddr_t paddr,
+__vaddr_t __attribute__((isr_safe)) ukplat_page_kmap(struct uk_pagetable *pt, __paddr_t paddr,
 			   unsigned long pages, unsigned long flags);
 
 /**
@@ -443,7 +443,7 @@ __vaddr_t ukplat_page_kmap(struct uk_pagetable *pt, __paddr_t paddr,
  *   Currently, the only valid flag is PAGE_FLAG_SIZE() to specify the page
  *   size for the purpose of describing the mapping length.
  */
-void ukplat_page_kunmap(struct uk_pagetable *pt, __vaddr_t vaddr,
+void __attribute__((isr_safe)) ukplat_page_kunmap(struct uk_pagetable *pt, __vaddr_t vaddr,
 			unsigned long pages, unsigned long flags);
 
 #ifdef __cplusplus

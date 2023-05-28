@@ -83,7 +83,7 @@ arm64_directmap_vaddr_to_paddr(__vaddr_t vaddr)
 	return (__paddr_t)(vaddr - DIRECTMAP_AREA_START);
 }
 
-static inline __pte_t
+static inline __pte_t __attribute__((isr_safe))
 pgarch_pte_create(__paddr_t paddr, unsigned long attr, unsigned int level,
 		  __pte_t template, unsigned int template_level __unused)
 {
@@ -171,7 +171,7 @@ pgarch_pte_change_attr(__pte_t pte __unused, unsigned long new_attr __unused,
 	return 0;
 }
 
-static inline unsigned long
+static inline unsigned long __attribute__((isr_safe))
 pgarch_attr_from_pte(__pte_t pte, unsigned int level __unused)
 {
 	unsigned long attr = PAGE_ATTR_PROT_READ;
@@ -228,7 +228,7 @@ pgarch_attr_from_pte(__pte_t pte, unsigned int level __unused)
 /*
  * Page tables
  */
-static inline __vaddr_t
+static inline __vaddr_t __attribute__((isr_safe))
 pgarch_pt_pte_to_vaddr(struct uk_pagetable *pt __unused, __pte_t pte,
 		       unsigned int level __maybe_unused)
 {
@@ -236,7 +236,7 @@ pgarch_pt_pte_to_vaddr(struct uk_pagetable *pt __unused, __pte_t pte,
 }
 
 /* Create a table descriptor */
-static inline __pte_t
+static inline __pte_t __attribute__((isr_safe))
 pgarch_pt_pte_create(struct uk_pagetable *pt __unused, __paddr_t pt_paddr,
 		     unsigned int level __unused, __pte_t template __unused,
 		     unsigned int template_level __unused)
@@ -252,14 +252,14 @@ pgarch_pt_pte_create(struct uk_pagetable *pt __unused, __paddr_t pt_paddr,
 	return pt_pte;
 }
 
-static inline __vaddr_t
+static inline __vaddr_t __attribute__((isr_safe))
 pgarch_pt_map(struct uk_pagetable *pt __unused, __paddr_t pt_paddr,
 	      unsigned int level __unused)
 {
 	return arm64_directmap_paddr_to_vaddr(pt_paddr);
 }
 
-static inline __paddr_t
+static inline __paddr_t __attribute__((isr_safe))
 pgarch_pt_unmap(struct uk_pagetable *pt __unused, __vaddr_t pt_vaddr,
 		unsigned int level __unused)
 {
@@ -267,21 +267,21 @@ pgarch_pt_unmap(struct uk_pagetable *pt __unused, __vaddr_t pt_vaddr,
 }
 
 /* Temporary kernel mapping */
-static inline __vaddr_t
+static inline __vaddr_t __attribute__((isr_safe))
 pgarch_kmap(struct uk_pagetable *pt __unused, __paddr_t paddr,
 	    __sz len __unused)
 {
 	return arm64_directmap_paddr_to_vaddr(paddr);
 }
 
-static inline void
+static inline void __attribute__((isr_safe))
 pgarch_kunmap(struct uk_pagetable *pt __unused, __vaddr_t vaddr __unused,
 	      __sz len __unused)
 {
 	/* nothing to do */
 }
 
-static inline int pgarch_init(void)
+static inline int __attribute__((isr_safe)) pgarch_init(void)
 {
 	/* Sanity checks to make sure that the PE supports the minimum
 	 * requirements and the platform has set up a sane environment.
@@ -371,7 +371,7 @@ pgarch_pt_add_mem(struct uk_pagetable *pt, __paddr_t start, __sz len)
 	return 0;
 }
 
-static inline int
+static inline int __attribute__((isr_safe))
 pgarch_pt_init(struct uk_pagetable *pt, __paddr_t start, __sz len)
 {
 	__sz fa_size;

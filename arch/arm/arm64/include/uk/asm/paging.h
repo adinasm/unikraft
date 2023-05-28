@@ -173,7 +173,7 @@ static inline __paddr_t PT_Lx_PTE_PADDR(__pte_t pte, unsigned int lvl)
 	return paddr;
 }
 
-static inline int ukarch_paddr_range_isvalid(__paddr_t start, __paddr_t end)
+static inline int __attribute__((isr_safe)) ukarch_paddr_range_isvalid(__paddr_t start, __paddr_t end)
 {
 #ifdef CONFIG_LIBUKDEBUG
 	UK_ASSERT(start <= end);
@@ -182,7 +182,7 @@ static inline int ukarch_paddr_range_isvalid(__paddr_t start, __paddr_t end)
 	return (ARM64_PADDR_VALID(end)) && (ARM64_PADDR_VALID(start));
 }
 
-static inline int ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end)
+static inline int __attribute__((isr_safe)) ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end)
 {
 #ifdef CONFIG_LIBUKDEBUG
 	UK_ASSERT(start <= end);
@@ -191,7 +191,7 @@ static inline int ukarch_vaddr_range_isvalid(__vaddr_t start, __vaddr_t end)
 	return (ARM64_VADDR_VALID(end)) && (ARM64_VADDR_VALID(start));
 }
 
-static inline int ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl,
+static inline int __attribute__((isr_safe)) ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl,
 				  unsigned int idx, __pte_t *pte)
 {
 	(void)lvl;
@@ -205,7 +205,7 @@ static inline int ukarch_pte_read(__vaddr_t pt_vaddr, unsigned int lvl,
 	return 0;
 }
 
-static inline int ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl,
+static inline int __attribute__((isr_safe)) ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl,
 				   unsigned int idx, __pte_t pte)
 {
 	(void)lvl;
@@ -221,7 +221,7 @@ static inline int ukarch_pte_write(__vaddr_t pt_vaddr, unsigned int lvl,
 	return 0;
 }
 
-static inline __paddr_t ukarch_pt_read_base(void)
+static inline __paddr_t __attribute__((isr_safe)) ukarch_pt_read_base(void)
 {
 	__paddr_t reg;
 
@@ -230,7 +230,7 @@ static inline __paddr_t ukarch_pt_read_base(void)
 	return (reg & TTBR0_EL1_BADDR_MASK);
 }
 
-static inline int ukarch_pt_write_base(__paddr_t pt_paddr)
+static inline int __attribute__((isr_safe)) ukarch_pt_write_base(__paddr_t pt_paddr)
 {
 	__paddr_t reg = (pt_paddr & TTBR0_EL1_BADDR_MASK);
 
@@ -240,7 +240,7 @@ static inline int ukarch_pt_write_base(__paddr_t pt_paddr)
 	return 0;
 }
 
-static inline void ukarch_tlb_flush_entry(__vaddr_t vaddr)
+static inline void __attribute__((isr_safe)) ukarch_tlb_flush_entry(__vaddr_t vaddr)
 {
 	__asm__ __volatile__(
 		"	dsb	ishst\n"        /* wait for write complete */
@@ -250,7 +250,7 @@ static inline void ukarch_tlb_flush_entry(__vaddr_t vaddr)
 		:: "r" (vaddr) : "memory");
 }
 
-static inline void ukarch_tlb_flush(void)
+static inline void __attribute__((isr_safe)) ukarch_tlb_flush(void)
 {
 	__asm__ __volatile__(
 		"	dsb	ishst\n"     /* wait for write complete */

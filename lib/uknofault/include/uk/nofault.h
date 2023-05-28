@@ -40,7 +40,7 @@ extern "C" {
  *   Number of bytes read. If the number is less than specified one or more
  *   faults occurred.
  */
-__sz uk_nofault_probe_r(__vaddr_t vaddr, __sz len, unsigned long flags);
+__sz __attribute__((isr_safe)) uk_nofault_probe_r(__vaddr_t vaddr, __sz len, unsigned long flags);
 
 /**
  * Probes the specified address range for read/write access. If the address
@@ -59,7 +59,7 @@ __sz uk_nofault_probe_r(__vaddr_t vaddr, __sz len, unsigned long flags);
  *   Number of bytes read/written. If the number is less than specified one or
  *   more faults occurred.
  */
-__sz uk_nofault_probe_rw(__vaddr_t vaddr, __sz len, unsigned long flags);
+__sz __attribute__((isr_safe)) uk_nofault_probe_rw(__vaddr_t vaddr, __sz len, unsigned long flags);
 
 /**
  * Copies len bytes from src to dst. The buffers must not overlap. If either
@@ -81,7 +81,7 @@ __sz uk_nofault_probe_rw(__vaddr_t vaddr, __sz len, unsigned long flags);
  *   Number of bytes copied. If the number is less than specified one or more
  *   faults occurred.
  */
-__sz uk_nofault_memcpy(char *dst, const char *src, __sz len,
+__sz __attribute__((isr_safe)) uk_nofault_memcpy(char *dst, const char *src, __sz len,
 		       unsigned long flags);
 
 /**

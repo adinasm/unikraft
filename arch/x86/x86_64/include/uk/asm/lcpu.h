@@ -156,7 +156,7 @@ static inline void ukarch_spinwait(void)
 #define X86_CPUID3_SYSCALL      (1 << 11)
 
 #ifndef __ASSEMBLY__
-static inline void ukarch_x86_cpuid(__u32 fn, __u32 subfn,
+static inline void __attribute__((isr_safe)) ukarch_x86_cpuid(__u32 fn, __u32 subfn,
 				    __u32 *eax, __u32 *ebx,
 				    __u32 *ecx, __u32 *edx)
 {

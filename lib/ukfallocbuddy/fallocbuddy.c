@@ -74,7 +74,7 @@
 #define BFA_Lx_ALIGN_UP(addr, lvl)	ALIGN_UP(addr, BFA_Lx_SIZE(lvl))
 #define BFA_Lx_ALIGN_DOWN(addr, lvl)	ALIGN_DOWN(addr, BFA_Lx_SIZE(lvl))
 
-static inline unsigned int bfa_order_to_lvl(unsigned int order)
+static inline unsigned int __attribute__((isr_safe)) bfa_order_to_lvl(unsigned int order)
 {
 	UK_ASSERT(order >= PAGE_SHIFT);
 	return order - PAGE_SHIFT;
@@ -168,8 +168,8 @@ struct buddy_framealloc {
 };
 
 /* Forward declarations */
-static inline int bfa_largest_level(__paddr_t paddr, __sz len);
-static int bfa_do_free(struct buddy_framealloc *bfa, __paddr_t paddr, __sz len);
+static inline int __attribute__((isr_safe)) bfa_largest_level(__paddr_t paddr, __sz len);
+static int __attribute__((isr_safe)) bfa_do_free(struct buddy_framealloc *bfa, __paddr_t paddr, __sz len);
 
 /* Memory block lookup */
 #ifdef BFA_DIRECT_MAPPED
@@ -222,7 +222,7 @@ static int bfa_do_free(struct buddy_framealloc *bfa, __paddr_t paddr, __sz len);
 		val &= ~(mask);					\
 	} while (0)
 
-static inline int bfa_zbit_scan(struct bfa_zone *zone, __paddr_t paddr,
+static inline int __attribute__((isr_safe)) bfa_zbit_scan(struct bfa_zone *zone, __paddr_t paddr,
 				unsigned int *level, unsigned int end_level,
 				int reset, int dir)
 {
@@ -258,7 +258,7 @@ static inline int bfa_zbit_scan(struct bfa_zone *zone, __paddr_t paddr,
 	return 0;
 }
 
-static void bfa_zbit_fill(struct bfa_zone *zone, __paddr_t paddr,
+static void __attribute__((isr_safe)) bfa_zbit_fill(struct bfa_zone *zone, __paddr_t paddr,
 			  __sz len, unsigned int level)
 {
 	unsigned int idx[2];
@@ -306,7 +306,7 @@ static void bfa_zbit_fill(struct bfa_zone *zone, __paddr_t paddr,
 	}
 }
 
-static inline void bfa_zbit_alloc(struct bfa_zone *zone, __paddr_t paddr,
+static inline void __attribute__((isr_safe)) bfa_zbit_alloc(struct bfa_zone *zone, __paddr_t paddr,
 				  unsigned int level)
 {
 	unsigned int idx;
@@ -335,7 +335,7 @@ static inline void bfa_zbit_alloc(struct bfa_zone *zone, __paddr_t paddr,
 	SET_BITS(*word, BFA_ZBIT_MASK(idx));
 }
 
-static inline void bfa_zbit_alloc_range(struct bfa_zone *zone, __paddr_t paddr,
+static inline void __attribute__((isr_safe)) bfa_zbit_alloc_range(struct bfa_zone *zone, __paddr_t paddr,
 					__sz len)
 {
 	unsigned int lvl;
@@ -363,7 +363,7 @@ static inline void bfa_zbit_alloc_range(struct bfa_zone *zone, __paddr_t paddr,
 	} while (len > 0);
 }
 
-static int bfa_zbit_free(struct bfa_zone *zone, __paddr_t paddr,
+static int __attribute__((isr_safe)) bfa_zbit_free(struct bfa_zone *zone, __paddr_t paddr,
 			 unsigned int level)
 {
 	unsigned int lvl = level;
@@ -460,7 +460,7 @@ static int bfa_zbit_free(struct bfa_zone *zone, __paddr_t paddr,
 	return 0;
 }
 
-static inline __sz bfa_zone_metadata_size(unsigned long frames)
+static inline __sz __attribute__((isr_safe)) bfa_zone_metadata_size(unsigned long frames)
 {
 	__sz size = sizeof(struct bfa_zone);
 	unsigned int lvl;
@@ -480,7 +480,7 @@ static inline __sz bfa_zone_metadata_size(unsigned long frames)
 	return size;
 }
 
-static struct bfa_zone *bfa_zone_init(void *buffer, __paddr_t start, __sz len,
+static struct bfa_zone __attribute__((isr_safe)) *bfa_zone_init(void *buffer, __paddr_t start, __sz len,
 				      __vaddr_t dm_off __maybe_unused)
 {
 	struct bfa_zone *zn = (struct bfa_zone *)buffer;
@@ -531,7 +531,7 @@ static struct bfa_zone *bfa_zone_init(void *buffer, __paddr_t start, __sz len,
 	return zn;
 }
 
-static inline void bfa_zone_add(struct buddy_framealloc *bfa,
+static inline void __attribute__((isr_safe)) bfa_zone_add(struct buddy_framealloc *bfa,
 				struct bfa_zone *zone)
 {
 	struct bfa_zone *tail;
@@ -554,7 +554,7 @@ static inline void bfa_zone_add(struct buddy_framealloc *bfa,
 #ifdef BFA_DIRECT_MAPPED
 #define bfa_mb_to_zone(bfa, mb)		((mb)->zone)
 #else /* BFA_DIRECT_MAPPED */
-static inline struct bfa_zone *bfa_mb_to_zone(struct buddy_framealloc *bfa,
+static inline struct __attribute__((isr_safe)) bfa_zone *bfa_mb_to_zone(struct buddy_framealloc *bfa,
 					      struct bfa_memblock *mb)
 {
 	struct bfa_zone *zone, *start = bfa->zones;
@@ -581,7 +581,7 @@ static inline struct bfa_zone *bfa_mb_to_zone(struct buddy_framealloc *bfa,
 }
 #endif /* !BFA_DIRECT_MAPPED */
 
-static inline __paddr_t bfa_mb_to_paddr(struct bfa_zone *zone,
+static inline __paddr_t __attribute__((isr_safe)) bfa_mb_to_paddr(struct bfa_zone *zone,
 					struct bfa_memblock *mb)
 {
 	__paddr_t paddr;
@@ -594,7 +594,7 @@ static inline __paddr_t bfa_mb_to_paddr(struct bfa_zone *zone,
 	return paddr;
 }
 
-static inline struct bfa_memblock *bfa_paddr_to_mb(struct bfa_zone *zone,
+static inline struct bfa_memblock __attribute__((isr_safe)) *bfa_paddr_to_mb(struct bfa_zone *zone,
 						   __paddr_t paddr)
 {
 	struct bfa_memblock *mb;
@@ -607,7 +607,7 @@ static inline struct bfa_memblock *bfa_paddr_to_mb(struct bfa_zone *zone,
 	return mb;
 }
 
-static inline struct bfa_zone *bfa_paddr_to_zone(struct buddy_framealloc *bfa,
+static inline struct bfa_zone __attribute__((isr_safe)) *bfa_paddr_to_zone(struct buddy_framealloc *bfa,
 						 __paddr_t paddr)
 {
 	struct bfa_zone *zone, *start = bfa->zones;
@@ -633,7 +633,7 @@ static inline struct bfa_zone *bfa_paddr_to_zone(struct buddy_framealloc *bfa,
 	return __NULL;
 }
 
-static inline void bfa_fl_add_tail(struct buddy_framealloc *bfa,
+static inline void __attribute__((isr_safe)) bfa_fl_add_tail(struct buddy_framealloc *bfa,
 				   struct bfa_memblock *mb)
 {
 	uk_list_add_tail(&mb->link, &bfa->free_list[mb->level]);
@@ -643,7 +643,7 @@ static inline void bfa_fl_add_tail(struct buddy_framealloc *bfa,
 	bfa->fa.free_memory += BFA_Lx_SIZE(mb->level);
 }
 
-static inline void bfa_fl_add(struct buddy_framealloc *bfa,
+static inline void __attribute__((isr_safe)) bfa_fl_add(struct buddy_framealloc *bfa,
 			      struct bfa_memblock *mb)
 {
 	uk_list_add(&mb->link, &bfa->free_list[mb->level]);
@@ -653,7 +653,7 @@ static inline void bfa_fl_add(struct buddy_framealloc *bfa,
 	bfa->fa.free_memory += BFA_Lx_SIZE(mb->level);
 }
 
-static inline void bfa_fl_del(struct buddy_framealloc *bfa,
+static inline void __attribute__((isr_safe)) bfa_fl_del(struct buddy_framealloc *bfa,
 			      struct bfa_memblock *mb)
 {
 	uk_list_del(&mb->link);
@@ -669,7 +669,7 @@ static inline void bfa_fl_del(struct buddy_framealloc *bfa,
 #endif /* CONFIG_LIBUKFALLOCBUDDY_DEBUG */
 }
 
-static inline struct bfa_memblock *bfa_fl_pop_mb(struct buddy_framealloc *bfa,
+static inline struct bfa_memblock __attribute__((isr_safe)) *bfa_fl_pop_mb(struct buddy_framealloc *bfa,
 						 unsigned int *level,
 						 struct bfa_zone **zone)
 {
@@ -701,7 +701,7 @@ static inline struct bfa_memblock *bfa_fl_pop_mb(struct buddy_framealloc *bfa,
 	return mb;
 }
 
-static struct bfa_memblock *
+static struct bfa_memblock __attribute__((isr_safe)) *
 bfa_fl_find_mb_in_zone(struct buddy_framealloc *bfa, struct bfa_zone *zone,
 		       __paddr_t paddr, unsigned int *level)
 {
@@ -755,7 +755,7 @@ bfa_fl_find_mb_in_zone(struct buddy_framealloc *bfa, struct bfa_zone *zone,
 	return __NULL;
 }
 
-static inline struct bfa_memblock *
+static inline struct bfa_memblock __attribute__((isr_safe)) *
 bfa_fl_find_mb_in_range(struct buddy_framealloc *bfa, unsigned int *level,
 			struct bfa_zone **zone, __paddr_t *paddr, __paddr_t min,
 			__paddr_t max)
@@ -889,7 +889,7 @@ static inline int bfa_largest_level(__paddr_t paddr, __sz len)
 	return lvl;
 }
 
-static inline int bfa_largest_level_strong(__paddr_t paddr, __sz len)
+static inline int __attribute__((isr_safe)) bfa_largest_level_strong(__paddr_t paddr, __sz len)
 {
 	__paddr_t value = paddr | len;
 
@@ -906,7 +906,7 @@ static inline int bfa_largest_level_strong(__paddr_t paddr, __sz len)
 	return bfa_order_to_lvl(ukarch_ffsl(value));
 }
 
-static void bfa_fl_addmem(struct buddy_framealloc *bfa, struct bfa_zone *zone,
+static void __attribute__((isr_safe)) bfa_fl_addmem(struct buddy_framealloc *bfa, struct bfa_zone *zone,
 			  __paddr_t paddr, __sz len, int is_new)
 {
 	struct bfa_memblock *mb;
@@ -950,7 +950,7 @@ static void bfa_fl_addmem(struct buddy_framealloc *bfa, struct bfa_zone *zone,
 	}
 }
 
-static int bfa_do_alloc(struct buddy_framealloc *bfa, __paddr_t paddr,
+static int __attribute__((isr_safe)) bfa_do_alloc(struct buddy_framealloc *bfa, __paddr_t paddr,
 			__sz len)
 {
 	struct bfa_memblock *mb;
@@ -1100,7 +1100,7 @@ EXIT_FREE:
 	return rc;
 }
 
-static int bfa_do_alloc_any(struct buddy_framealloc *bfa, __paddr_t *paddr,
+static int __attribute__((isr_safe)) bfa_do_alloc_any(struct buddy_framealloc *bfa, __paddr_t *paddr,
 			    __sz len)
 {
 	struct bfa_memblock *mb;
@@ -1192,7 +1192,7 @@ static int bfa_do_alloc_any(struct buddy_framealloc *bfa, __paddr_t *paddr,
 	return 0;
 }
 
-static int bfa_alloc(struct uk_falloc *fa, __paddr_t *paddr,
+static int __attribute__((isr_safe)) bfa_alloc(struct uk_falloc *fa, __paddr_t *paddr,
 		     unsigned long frames, unsigned long flags __unused)
 {
 	struct buddy_framealloc *bfa = (struct buddy_framealloc *)fa;
@@ -1215,7 +1215,7 @@ static int bfa_alloc(struct uk_falloc *fa, __paddr_t *paddr,
 		return bfa_do_alloc(bfa, *paddr, len);
 }
 
-static int bfa_do_alloc_any_in_range(struct buddy_framealloc *bfa,
+static int __attribute__((isr_safe)) bfa_do_alloc_any_in_range(struct buddy_framealloc *bfa,
 				     __paddr_t *paddr, __sz len, __paddr_t min,
 				     __paddr_t max)
 {
@@ -1267,7 +1267,7 @@ static int bfa_do_alloc_any_in_range(struct buddy_framealloc *bfa,
 	return 0;
 }
 
-static int bfa_alloc_from_range(struct uk_falloc *fa, __paddr_t *paddr,
+static int __attribute__((isr_safe)) bfa_alloc_from_range(struct uk_falloc *fa, __paddr_t *paddr,
 				unsigned long frames,
 				unsigned long flags __maybe_unused,
 				__paddr_t min, __paddr_t max)
@@ -1288,7 +1288,7 @@ static int bfa_alloc_from_range(struct uk_falloc *fa, __paddr_t *paddr,
 	return bfa_do_alloc_any_in_range(bfa, paddr, len, min, max);
 }
 
-static struct bfa_memblock *bfa_try_merge(struct buddy_framealloc *bfa,
+static struct bfa_memblock __attribute__((isr_safe)) *bfa_try_merge(struct buddy_framealloc *bfa,
 					  struct bfa_zone *zone,
 					  __paddr_t paddr, unsigned int *level)
 {
@@ -1415,7 +1415,7 @@ static int bfa_do_free(struct buddy_framealloc *bfa, __paddr_t paddr, __sz len)
 	return 0;
 }
 
-static int bfa_free(struct uk_falloc *fa, __paddr_t paddr,
+static int __attribute__((isr_safe)) bfa_free(struct uk_falloc *fa, __paddr_t paddr,
 		    unsigned long frames)
 {
 	struct buddy_framealloc *bfa = (struct buddy_framealloc *)fa;
@@ -1431,7 +1431,7 @@ static int bfa_free(struct uk_falloc *fa, __paddr_t paddr,
 	return bfa_do_free(bfa, paddr, len);
 }
 
-static int bfa_do_addmem(struct buddy_framealloc *bfa, void *metadata,
+static int __attribute__((isr_safe)) bfa_do_addmem(struct buddy_framealloc *bfa, void *metadata,
 			 __paddr_t paddr, __sz len, __vaddr_t dm_off)
 {
 	struct bfa_zone *zone;
@@ -1455,7 +1455,7 @@ static int bfa_do_addmem(struct buddy_framealloc *bfa, void *metadata,
 	return 0;
 }
 
-static int bfa_addmem(struct uk_falloc *fa, void *metadata, __paddr_t paddr,
+static int __attribute__((isr_safe)) bfa_addmem(struct uk_falloc *fa, void *metadata, __paddr_t paddr,
 		      unsigned long frames, __vaddr_t dm_off)
 {
 	struct buddy_framealloc *bfa = (struct buddy_framealloc *)fa;

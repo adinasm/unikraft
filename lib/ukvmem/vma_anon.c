@@ -20,7 +20,7 @@
 #include <uk/isr/string.h>
 
 #ifdef CONFIG_LIBUKVMEM_ANON_BASE
-static __vaddr_t vma_op_anon_get_base(struct uk_vas *vas __unused,
+static __vaddr_t __attribute__((isr_safe)) vma_op_anon_get_base(struct uk_vas *vas __unused,
 				      void *data __unused,
 				      unsigned long flags __unused)
 {

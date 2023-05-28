@@ -58,16 +58,16 @@
 #endif
 
 /* Forward declarations */
-static inline int pg_pt_alloc(struct uk_pagetable *pt, __vaddr_t *pt_vaddr,
+static inline int __attribute__((isr_safe)) pg_pt_alloc(struct uk_pagetable *pt, __vaddr_t *pt_vaddr,
 			      __paddr_t *pt_paddr, unsigned int level);
 
-static inline void pg_pt_free(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
+static inline void __attribute__((isr_safe)) pg_pt_free(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 			      unsigned int level);
 
-static int pg_page_split(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
+static int __attribute__((isr_safe)) pg_page_split(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 			 __vaddr_t vaddr, unsigned int level);
 
-static int pg_page_unmap(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
+static int __attribute__((isr_safe)) pg_page_unmap(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 			 unsigned int level, __vaddr_t vaddr, __sz len,
 			 unsigned long flags);
 
@@ -106,7 +106,7 @@ int ukplat_pt_set_active(struct uk_pagetable *pt)
 	return 0;
 }
 
-static int pg_pt_clone(struct uk_pagetable *pt_dst, struct uk_pagetable *pt_src,
+static int __attribute__((isr_safe)) pg_pt_clone(struct uk_pagetable *pt_dst, struct uk_pagetable *pt_src,
 		       unsigned long flags)
 {
 	unsigned int lvl = PT_LEVELS - 1;
@@ -338,7 +338,7 @@ int ukplat_pt_free(struct uk_pagetable *pt, unsigned long flags)
 	return 0;
 }
 
-static inline int pg_pt_walk(struct uk_pagetable *pt, __vaddr_t *pt_vaddr,
+static inline int __attribute__((isr_safe)) pg_pt_walk(struct uk_pagetable *pt, __vaddr_t *pt_vaddr,
 			     __vaddr_t vaddr, unsigned int *level,
 			     unsigned int to_level, __pte_t *pte)
 {
@@ -433,7 +433,7 @@ static inline void pg_ffree(struct uk_pagetable *pt, __paddr_t paddr,
 	UK_ASSERT(rc == 0 || rc == -EFAULT || rc == -ENOMEM);
 }
 
-static inline int pg_pt_alloc(struct uk_pagetable *pt, __vaddr_t *pt_vaddr,
+static inline int __attribute__((isr_safe)) pg_pt_alloc(struct uk_pagetable *pt, __vaddr_t *pt_vaddr,
 			      __paddr_t *pt_paddr, unsigned int level)
 {
 	__pte_t invalid;
@@ -473,7 +473,7 @@ EXIT_FREE:
 	return -ENOMEM;
 }
 
-static inline void pg_pt_free(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
+static inline void __attribute__((isr_safe)) pg_pt_free(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 			      unsigned int level)
 {
 	__paddr_t pt_paddr;
@@ -491,7 +491,7 @@ static inline void pg_pt_free(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 #endif /* CONFIG_PAGING_STATS */
 }
 
-static inline int pg_largest_level(__vaddr_t vaddr, __paddr_t paddr, __sz len,
+static inline int __attribute__((isr_safe)) pg_largest_level(__vaddr_t vaddr, __paddr_t paddr, __sz len,
 				   unsigned int max_lvl)
 {
 	unsigned int lvl = max_lvl;
@@ -847,7 +847,7 @@ int ukplat_page_mapx(struct uk_pagetable *pt, __vaddr_t vaddr,
 			    PAGE_LEVEL, mapx);
 }
 
-static int pg_page_split(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
+static int __attribute__((isr_safe)) pg_page_split(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 			 __vaddr_t vaddr, unsigned int level)
 {
 	unsigned int to_lvl;
@@ -926,7 +926,7 @@ EXIT_FREE:
 	return rc;
 }
 
-static int pg_page_unmap(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
+static int __attribute__((isr_safe)) pg_page_unmap(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 			 unsigned int level, __vaddr_t vaddr, __sz len,
 			 unsigned long flags)
 {
@@ -1208,7 +1208,7 @@ int ukplat_page_unmap(struct uk_pagetable *pt, __vaddr_t vaddr,
 			     flags);
 }
 
-static int pg_page_set_attr(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
+static int __attribute__((isr_safe)) pg_page_set_attr(struct uk_pagetable *pt, __vaddr_t pt_vaddr,
 			    unsigned int level, __vaddr_t vaddr, __sz len,
 			    unsigned long new_attr, unsigned long flags)
 {
